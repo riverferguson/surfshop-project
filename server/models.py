@@ -49,6 +49,7 @@ class Product(db.Model, SerializerMixin):
     condition = db.Column(db.String)
     description = db.Column(db.String)
     price = db.Column(db.Float)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
     
