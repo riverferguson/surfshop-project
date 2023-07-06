@@ -80,5 +80,119 @@ class SignOut(Resource):
 
 api.add_resource(SignOut, '/signout')
 
+class Products(Resource):
+    def get(self):
+        product = [p.to_dict() for p in Product.query.all()]
+        return make_response(product, 200)
+    
+    def post(self):
+        if session.get('user_id'):
+            found_user = User.query.filter(User.id == session.get('user_id')).first()
+            if found_user.customer == False:
+                new = request.get_json()
+                
+                new_product = Product(
+                    name = new['name'],
+                    image = new['image'],
+                    category = new['category'],
+                    conditon = new['condition'],
+                    description = new['description'],
+                    price = new['price']
+                )
+                
+                db.session.add(new_product)
+                db.session.commit()
+                
+                return make_response(new_product.to_dict(), 201)
+            return {'error': 'Unauthorized'}, 401
+        
+api.add_resource(Products, '/products')
+
+class ProductsByID(Resource):
+    def get(self, id):
+        product = Product.query.filter(Product.id==id).first()
+        return make_response(product.to_dict(), 200)
+    
+    def patch(self, id):
+        if session.get('user_id'):
+            found_user = User.query.filter(User.id == session.get('user_id')).first()
+            if found_user.customer == False:
+                data = request.get_json()
+                update = Product.query.filter_by(id=id).first()
+                
+                for key in data:
+                    setattr(update, key, data[key])
+                    
+                db.session.add(update)
+                db.session.commit()
+                return make_response(update.to_dict(), 200)
+            return {'error': 'Unauthorized'}, 401
+        return {'error': 'Unauthorized'}, 401
+    
+    def delete(self, id):
+        to_delete = Product.query.filter(Product.id==id).first()
+        db.session.delete(to_delete)
+        db.session.commit()
+        
+        return make_response({'message': 'Product successfully deleted.'}, 204)
+    
+api.add_resource(ProductsByID, '/products/<int:id>')
+
+
+class Cartitems(Resource):
+    def get(self):
+        if session.get('user_id'):
+            cart_items = Cartitem.query.join(Receipt.cart_items).filter(Receipt.user_id == session.get('user_id')).all()
+            cart_items_dict = [item.to_dict() for item in cart_items]
+            return make_response(cart_items_dict, 200)
+        
+    def post(self):
+        if session.get('user_id'):
+            found_user = User.query.filter(User.id == session.get('user_id')).first()
+            if found_user:
+                new = request.get_json()
+                cart_item = Cartitem(
+                    quantity = new['quantity'],
+                    product_id = new['product_id'],
+                    receipt_id = new['receipt_id']
+                )
+                
+                db.session.add(cart_item)
+                db.session.commit()
+                
+                return make_response(cart_item.to_dict(), 201)
+            return {'error': 'Unauthorized'}, 401
+        
+api.add_resource(Cartitems, '/cartitems')
+
+
+class CartitemByID(Resource):
+    def patch(self, id):
+        if session.get('user_id'):
+            found_user = User.query.filter(User.id == session.get('user_id')).first()
+            if found_user:
+                data = request.get_json()
+                update = Cartitem.query.filter_by(id=id).first()
+                
+                if update:
+                    for attr in data:
+                        setattr(update, attr, data[attr])
+                    db.session.add(update)
+                    db.session.commit()
+                    return make_response(update.to_dict(), 200)
+                else:
+                    return {'error':'Item not found'}, 404
+            return {'error': 'Unauthorized'}, 401
+        return {'error': 'Unauthorized'}, 401
+    
+    def delete(self, id):
+        to_delete = Cartitem.query.filter(Cartitem.id==id).first()
+        db.session.delete(to_delete)
+        db.session.commit()
+        
+        return make_response({'message': 'item successfully deleted.'})
+    
+api.add_resource(CartitemByID, '/cartitems/<int:id>')
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

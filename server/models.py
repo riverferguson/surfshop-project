@@ -55,6 +55,8 @@ class Product(db.Model, SerializerMixin):
     
     cart_items = db.relationship('Cartitem', backref='product', cascade='all')
     
+    serlize_only = (name, image, category, condition, description, price)
+    
     
     def __repr__(self):
         return f'<Product {self.id}'
