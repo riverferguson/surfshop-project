@@ -10,6 +10,14 @@ flask-migrate = "*"
 sqlalchemy-serializer = "*"
 flask-restful = "*"
 flask-cors = "*"
+flask-dotenv = "*"
+werkzeug = "*"
+ipdb = "*"
+psycopg2-binary = "*"
+"sqlalchemy.ext" = "*"
+flask-bcrypt = "*"
+flask-session = "*"
+db = "*"
 
 [dev-packages]
 
