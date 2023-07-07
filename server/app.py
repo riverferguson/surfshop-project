@@ -7,7 +7,7 @@ from flask import request, make_response, jsonify, session, abort, url_for, redi
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restful import Resource
 from functools import wraps
-import ipdb
+#import ipdb
 
 # Local imports
 from config import *
@@ -86,16 +86,16 @@ class Products(Resource):
         return make_response(product, 200)
     
     def post(self):
-        if session.get('user_id'):
-            found_user = User.query.filter(User.id == session.get('user_id')).first()
-            if found_user.customer == False:
+        # if session.get('user_id'):
+        #     found_user = User.query.filter(User.id == session.get('user_id')).first()
+        #     if found_user.customer == False:
                 new = request.get_json()
                 
                 new_product = Product(
                     name = new['name'],
                     image = new['image'],
                     category = new['category'],
-                    conditon = new['condition'],
+                    condition = new['condition'],
                     description = new['description'],
                     price = new['price']
                 )
@@ -104,7 +104,7 @@ class Products(Resource):
                 db.session.commit()
                 
                 return make_response(new_product.to_dict(), 201)
-            return {'error': 'Unauthorized'}, 401
+            # return {'error': 'Unauthorized'}, 401
         
 api.add_resource(Products, '/products')
 

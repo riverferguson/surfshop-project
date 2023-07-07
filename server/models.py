@@ -11,7 +11,7 @@ class User(db.Model, SerializerMixin):
     
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String)
-    username = db.Column(db.String)
+    username = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     customer = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -35,6 +35,7 @@ class Cartitem(db.Model, SerializerMixin):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
     
     
+    
     def __repr__(self):
         return f'<Cartitem {self.id}'
     
@@ -49,13 +50,12 @@ class Product(db.Model, SerializerMixin):
     condition = db.Column(db.String)
     description = db.Column(db.String)
     price = db.Column(db.Float)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
     
-    cart_items = db.relationship('Cartitem', backref='product', cascade='all')
+    #cart_items = db.relationship('Cartitem', backref='product', cascade='all')
     
-    serlize_only = (name, image, category, condition, description, price)
+    #serlize_only = (id, name, image, category, condition, description, price, user_id, created_at, updated_at)
     
     
     def __repr__(self):
